@@ -11,10 +11,16 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import shutil
 import tempfile
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ORIGINAL_DB_PATH = os.path.join(BASE_DIR, 'db.sqlite3') 
+TEMP_DB_PATH = os.path.join('/tmp', 'db.sqlite3')
+
+if not os.path.exists(TEMP_DB_PATH):
+    shutil.copy(ORIGINAL_DB_PATH, TEMP_DB_PATH)
 
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/login'
@@ -79,7 +85,7 @@ WSGI_APPLICATION = 'commerce.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(tempfile.gettempdir(), 'db.sqlite3'),
+        'NAME': TEMP_DB_PATH,
     }
 }
 
