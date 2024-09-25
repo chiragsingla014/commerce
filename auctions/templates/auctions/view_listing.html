@@ -1,0 +1,119 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            {% if "wishlist" in message.tags or "incorrect_bid" in message.tags %}
+
+                <div class="alert alert-light" role="alert">
+                      {{ message }}
+                </div>
+
+
+            {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <figure class="text-center">
+        <blockquote class="blockquote">
+            {% for message in messages %}
+            {% if "listing" in message.tags %}
+            <p class="{{ message.tags }}">{{ message }}</p>
+            {% endif %}
+            {% endfor %}
+        </blockquote>
+
+    </figure>
+
+
+<div class="card mb-3">
+  <div class="row g-0">
+    <div class="col-md-4">
+       <img src="{{ listing.image }}" class="img-thumbnai" alt="..." style="width:500px;">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+          <h3>{{ listing.title }}</h3>
+          <p class="card-text">{{ listing.description }}</p>
+          <p class="card-text">Category: {{ listing.category }}</p>
+          <p class="card-text">Listed by {{ owner }}</p>
+
+          <form action="{% url 'watchlist' %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" value="change" name="action">
+              <input type="hidden" name="listing_id" value="{{ listing.id }}">
+              <input type="submit" value="add/remove to wishlist">
+          </form>
+
+          <br>
+          <ul class="list-inline">
+            <li class="list-inline-item">{{ no_of_bids }} bids so far.</li>
+            <li class="list-inline-item">{% if bool == True %}
+                                            Your bid is the current bid.
+                                        {% else %}
+                                            Your bid is not the current bid.
+                                        {% endif %}
+            </li>
+          </ul>
+
+          <h1>${{ listing.current_price }}</h1>
+          <form action="{% url 'view_listing' listing.id %}" method="post" class="row g-3">
+            <div class="col-auto">
+                {% csrf_token %}
+                {{ form.bid }}
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary mb-3">BID</button>
+            </div>
+          </form>
+
+          {% if bool2 == True and activity == True %}
+          <br>
+          <form action="{% url 'view_listing' listing.id %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" value="close" name="action">
+              <input type="hidden" name="listing_id" value="{{ listing.id }}">
+              <input type="submit" value="Close Listing">
+          </form>
+          {% endif %}
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{%for comment in comments %}
+<div class="card text-bg-dark mb-3" >
+    <div class="card-header">Commented by {{ comment.commenter }} on {{ comment.timestamp }}</div>
+    <div class="card-body">
+        <p class="card-text">{{  comment.comment }} </p>
+    </div>
+</div>
+{% empty %}
+<h5>NO COMMENTS</h5>
+{% endfor %}
+
+
+    <form action="{% url 'view_listing' listing.id %}" method="POST">
+        {% csrf_token %}
+        {{ commentform }}
+
+        <input type="submit" value="Comment">
+    </form>
+
+
+
+
+
+
+
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Active Listings</h2>
+    {% for listing in all_listings %}
+        <div class="card mb-3">
+  <div class="row g-0" >
+    <div class="col-md-4">
+      <img src="{{ listing.image }}" class="img-fluid rounded-start" alt="No Image Preview" style="width:300px">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="card-title">{{ listing.title }}</h5>
+        <p class="card-text">{{ listing.description }}</p>
+        <p class="card-text">Current Price: {{ listing.current_price }}</p>
+          <button><a href="{% url 'view_listing' listing.id %}">View Product</a></button>
+      </div>
+    </div>
+  </div>
+</div>
+    {% endfor %}
+{% endblock %}
