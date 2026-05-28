@@ -1,22 +1,24 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
-    {% for listing in all_listings %}
-        <div class="card mb-3">
-  <div class="row g-0" >
-    <div class="col-md-4">
-      <img src="{{ listing.image }}" class="img-fluid rounded-start" alt="No Image Preview" style="width:300px">
+    <h1 class="page-title">Active Listings</h1>
+    <div class="grid grid-3">
+        {% for listing in all_listings %}
+            <div class="card listing-card">
+                {% if listing.image %}
+                    <img src="{{ listing.image }}" class="listing-card-image" alt="{{ listing.title }}">
+                {% else %}
+                    <div class="listing-card-image placeholder">No Image</div>
+                {% endif %}
+                <div class="listing-card-body">
+                    <a href="{% url 'view_listing' listing.id %}" class="listing-card-title">{{ listing.title }}</a>
+                    <p class="listing-card-desc">{{ listing.description|truncatewords:20 }}</p>
+                    <span class="listing-card-price">Rs.{{ listing.current_price }}</span>
+                    <a href="{% url 'view_listing' listing.id %}" class="btn btn-primary btn-sm listing-card-link">View Listing</a>
+                </div>
+            </div>
+        {% empty %}
+            <p>No active listings available.</p>
+        {% endfor %}
     </div>
-    <div class="col-md-8">
-      <div class="card-body">
-        <h5 class="card-title">{{ listing.title }}</h5>
-        <p class="card-text">{{ listing.description }}</p>
-        <p class="card-text">Current Price: {{ listing.current_price }}</p>
-          <button><a href="{% url 'view_listing' listing.id %}">View Product</a></button>
-      </div>
-    </div>
-  </div>
-</div>
-    {% endfor %}
 {% endblock %}

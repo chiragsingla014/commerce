@@ -1,5 +1,5 @@
 import datetime
-
+from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -109,68 +109,69 @@ def create_listing(request):
 
 @login_required
 def view_listing(request, listing_id):
+    listing = get_object_or_404(Listing, id=listing_id)
+    owner = listing.owner  # donor who created the listing
+ 
     if request.method == "GET":
-        listing = get_object_or_404(Listing, id=listing_id)
-        bid = Bid.objects.filter(listing=listing).order_by('-timestamp').first()
-        num_bids = Bid.objects.filter(listing=listing).count()
-        bidder = bid.bidder
-
-        form = BidForm()
-        if request.user == bidder:
-            bool = True
-        else:
-            bool = False
-        firstbid = Bid.objects.filter(listing=listing).order_by('timestamp').first()
-        owner = firstbid.bidder
-        if request.user == owner:
-            bool2 = True
-        else:
-            bool2 = False
         if not listing.active:
-            messages.info(request, "THIS LISTING IS CLOSED", extra_tags="listing")
-            if request.user == bidder:
-                messages.info(request, "YOU ARE THE WINNER", extra_tags="listing")
-            else:
-                messages.info(request, "YOU ARE NOT THE WINNER", extra_tags="listing")
+            messages.info(request, "This listing is no longer available.", extra_tags="listing")
+ 
         commentform = CommentForm()
         comments = Comment.objects.filter(listing=listing).all()
+ 
         return render(request, "auctions/view_listing.html", {
             "listing": listing,
-            "bid": bid,
-            "no_of_bids": num_bids,
             "owner": owner,
-            "form": form,
-            "bool": bool,
-            "bool2": bool2,
+            "bool2": request.user == owner,        # True if viewer is the donor
             "activity": listing.active,
             "commentform": commentform,
-            "comments": comments
-    })
+            "comments": comments,
+        })
+ 
     elif request.method == "POST":
-        form = BidForm(request.POST)
-        form2 = CommentForm(request.POST)
-        if form.is_valid():
-            bid = form.save(commit=False)
-            bid.listing = Listing.objects.filter(id=listing_id, active=True).first()
-            if bid.bid <= bid.listing.current_price:
-                messages.error(request, "Bid Must Be Higher Than Current Bid", extra_tags="incorrect_bid")
-                return redirect(reverse("view_listing",args=[listing_id]))
-            bid.bidder = request.user
-            bid.save()
-            listing = Listing.objects.filter(id=listing_id).first()
-            listing.current_price = bid.bid
-            listing.save()
-        elif ("action","close") in request.POST.items():
-            listing_id = request.POST.get('listing_id')
-            listing = Listing.objects.filter(id=listing_id).first()
+        action = request.POST.get("action")
+ 
+        # --- Rider accepts pickup ---
+        if action == "claim":
+            if request.user == owner:
+                messages.error(request, "You can't accept pickup of your own donation.", extra_tags="listing")
+                return redirect(reverse("view_listing", args=[listing_id]))
+ 
+            if hasattr(listing, "acceptance"):
+                messages.error(request, "This listing has already been accepted by a rider.", extra_tags="listing")
+                return redirect(reverse("view_listing", args=[listing_id]))
+ 
+            PickupAcceptance.objects.create(
+                listing=listing,
+                rider=request.user,
+            )
             listing.active = False
             listing.save()
-        elif form2.is_valid():
-            comment = form2.save(commit=False)
-            comment.commenter = request.user
-            comment.listing = Listing.objects.filter(id=listing_id).first()
-            comment.save()
-        return redirect(reverse('view_listing', args=[listing_id]))
+            messages.success(request, "Pickup accepted! Connect with the donor to arrange collection.", extra_tags="listing")
+            return redirect(reverse("view_listing", args=[listing_id]))
+ 
+        # --- Donor closes / marks as picked up ---
+        elif action == "close":
+            if request.user == owner:
+                listing.active = False
+                listing.save()
+                if hasattr(listing, "acceptance"):
+                    listing.acceptance.completed = True
+                    listing.acceptance.completed_at = timezone.now()
+                    listing.acceptance.save()
+            return redirect(reverse("view_listing", args=[listing_id]))
+ 
+        # --- Comment ---
+        else:
+            form2 = CommentForm(request.POST)
+            if form2.is_valid():
+                comment = form2.save(commit=False)
+                comment.commenter = request.user
+                comment.listing = listing
+                comment.save()
+            return redirect(reverse("view_listing", args=[listing_id]))
+ 
+
 
 
 @login_required()
@@ -221,3 +222,29 @@ def closed_listings(request):
     return render(request, "auctions/closed_listings.html", {
         "closed_listings": listings
     })
+
+
+
+@login_required
+def my_pickups(request):
+    accepted = PickupAcceptance.objects.filter(
+        rider=request.user
+    ).select_related("listing", "listing__owner", "listing__category").order_by("-accepted_at")
+ 
+    pending = [p for p in accepted if not p.completed]
+    completed = [p for p in accepted if p.completed]
+ 
+    return render(request, "auctions/my_pickups.html", {
+        "pending": pending,
+        "completed": completed,
+    })
+ 
+ 
+@login_required
+def complete_pickup(request, acceptance_id):
+    if request.method == "POST":
+        acceptance = get_object_or_404(PickupAcceptance, id=acceptance_id, rider=request.user)
+        acceptance.completed = True
+        acceptance.completed_at = timezone.now()
+        acceptance.save()
+    return redirect("my_pickups")

@@ -12,7 +12,10 @@ urlpatterns = [
     path("category", views.category, name="category"),
     path("category/<str:cat>", views.cat, name="cat"),
     path("watchlist", views.watchlist, name="watchlist"),
-    path("closed_listings", views.closed_listings, name="closed_listings")
+    path("closed_listings", views.closed_listings, name="closed_listings"),
+    path("pickups/", views.my_pickups, name="my_pickups"),
+    path("pickups/<int:acceptance_id>/complete/", views.complete_pickup, name="complete_pickup"),
+
 ]
 
 

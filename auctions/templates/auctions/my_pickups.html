@@ -1,0 +1,317 @@
+{% extends "auctions/layout.html" %}
+{% block body %}
+
+<div class="main">
+<div class="pickups-page">
+
+    <div class="pickups-header">
+        <h1 class="page-title">My Pickups</h1>
+        <p class="pickups-subtitle">Donations you've agreed to collect and deliver</p>
+    </div>
+
+    <!-- Pending -->
+    <section class="pickups-section">
+        <h2 class="section-heading">
+            <span class="section-dot pending-dot"></span>
+            In Progress
+            <span class="section-count">{{ pending|length }}</span>
+        </h2>
+
+        {% if pending %}
+        <div class="pickups-grid">
+            {% for acceptance in pending %}
+            <div class="pickup-card">
+                {% if acceptance.listing.image %}
+                <img src="{{ acceptance.listing.image }}" class="pickup-thumb" alt="{{ acceptance.listing.title }}">
+                {% else %}
+                <div class="pickup-thumb no-image">No image</div>
+                {% endif %}
+
+                <div class="pickup-body">
+                    <div class="pickup-top">
+                        <h3 class="pickup-title">
+                            <a href="{% url 'view_listing' acceptance.listing.id %}">{{ acceptance.listing.title }}</a>
+                        </h3>
+                        <span class="tip-pill">${{ acceptance.listing.current_price }} tip</span>
+                    </div>
+
+                    <p class="pickup-donor">Donated by <strong>{{ acceptance.listing.owner }}</strong></p>
+
+                    {% if acceptance.listing.pickup_address %}
+                    <p class="pickup-address">
+                        <span class="address-icon">&#x1F4CD;</span>
+                        {{ acceptance.listing.pickup_address }}
+                    </p>
+                    {% else %}
+                    <p class="pickup-address no-address">No address provided — check comments or contact donor</p>
+                    {% endif %}
+
+                    <div class="pickup-footer">
+                        <p class="pickup-meta">Accepted {{ acceptance.accepted_at|date:"M d, Y" }}</p>
+                        <form method="POST" action="{% url 'complete_pickup' acceptance.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary btn-sm">Mark as Picked Up</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No active pickups. <a href="{% url 'index' %}">Browse available donations →</a></p>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Completed -->
+    <section class="pickups-section">
+        <h2 class="section-heading">
+            <span class="section-dot completed-dot"></span>
+            Completed
+            <span class="section-count">{{ completed|length }}</span>
+        </h2>
+
+        {% if completed %}
+        <div class="pickups-grid">
+            {% for acceptance in completed %}
+            <div class="pickup-card pickup-card-completed">
+                {% if acceptance.listing.image %}
+                <img src="{{ acceptance.listing.image }}" class="pickup-thumb" alt="{{ acceptance.listing.title }}">
+                {% else %}
+                <div class="pickup-thumb no-image">No image</div>
+                {% endif %}
+
+                <div class="pickup-body">
+                    <div class="pickup-top">
+                        <h3 class="pickup-title">
+                            <a href="{% url 'view_listing' acceptance.listing.id %}">{{ acceptance.listing.title }}</a>
+                        </h3>
+                        <span class="tip-pill tip-earned">${{ acceptance.listing.current_price }} earned</span>
+                    </div>
+
+                    <p class="pickup-donor">Donated by <strong>{{ acceptance.listing.owner }}</strong></p>
+
+                    {% if acceptance.listing.pickup_address %}
+                    <p class="pickup-address">
+                        <span class="address-icon">&#x1F4CD;</span>
+                        {{ acceptance.listing.pickup_address }}
+                    </p>
+                    {% endif %}
+
+                    <div class="pickup-footer">
+                        <p class="pickup-meta">
+                            Completed {% if acceptance.completed_at %}{{ acceptance.completed_at|date:"M d, Y" }}{% endif %}
+                        </p>
+                        <span class="done-badge">&#10003; Done</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No completed pickups yet.</p>
+        </div>
+        {% endif %}
+    </section>
+
+</div>
+</div>
+
+<style>
+.pickups-page {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.pickups-subtitle {
+    color: #737373;
+    font-size: 0.875rem;
+    margin-top: 4px;
+}
+
+.pickups-section {
+    margin-bottom: 2.5rem;
+}
+
+.section-heading {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #737373;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e5e5;
+}
+.section-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.pending-dot  { background: #f59e0b; }
+.completed-dot { background: #059669; }
+.section-count {
+    margin-left: auto;
+    background: #f5f5f5;
+    color: #525252;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+
+.pickups-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.pickup-card {
+    display: flex;
+    gap: 0;
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.pickup-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+}
+.pickup-card-completed {
+    opacity: 0.7;
+}
+
+.pickup-thumb {
+    width: 120px;
+    min-height: 120px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.pickup-thumb.no-image {
+    width: 120px;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: #a3a3a3;
+}
+
+.pickup-body {
+    padding: 16px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pickup-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.pickup-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+.pickup-title a {
+    color: #1a1a1a;
+    text-decoration: none;
+}
+.pickup-title a:hover { color: #2563eb; }
+
+.tip-pill {
+    flex-shrink: 0;
+    background: #fffbeb;
+    color: #b45309;
+    border: 1px solid #fcd34d;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+.tip-earned {
+    background: #ecfdf5;
+    color: #065f46;
+    border-color: #a7f3d0;
+}
+
+.pickup-donor {
+    font-size: 0.8125rem;
+    color: #737373;
+    margin: 0;
+}
+
+.pickup-address {
+    font-size: 0.8125rem;
+    color: #525252;
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+}
+.pickup-address.no-address {
+    color: #a3a3a3;
+    font-style: italic;
+}
+.address-icon { line-height: 1.5; flex-shrink: 0; }
+
+.pickup-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 10px;
+}
+
+.pickup-meta {
+    font-size: 0.75rem;
+    color: #a3a3a3;
+    margin: 0;
+}
+
+.done-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #059669;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    padding: 3px 10px;
+    border-radius: 999px;
+}
+
+.empty-state {
+    background: #f5f5f5;
+    border: 1px dashed #d4d4d4;
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+    font-size: 0.875rem;
+    color: #737373;
+}
+.empty-state a {
+    color: #2563eb;
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .pickup-thumb { width: 80px; min-height: 80px; }
+    .pickup-thumb.no-image { width: 80px; }
+    .pickup-footer { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+</style>
+
+{% endblock %}

@@ -1,119 +1,326 @@
 {% extends "auctions/layout.html" %}
-
 {% block body %}
 
     {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            {% if "wishlist" in message.tags or "incorrect_bid" in message.tags %}
-
-                <div class="alert alert-light" role="alert">
-                      {{ message }}
-                </div>
-
-
+        {% for message in messages %}
+            {% if "wishlist" in message.tags or "listing" in message.tags %}
+<div class="alert alert-success">{{ message }}</div>
             {% endif %}
-            {% endfor %}
-        </ul>
+        {% endfor %}
     {% endif %}
 
-    <figure class="text-center">
-        <blockquote class="blockquote">
-            {% for message in messages %}
-            {% if "listing" in message.tags %}
-            <p class="{{ message.tags }}">{{ message }}</p>
+<div class="detail-grid">
+
+    <div class="detail-image-wrap">
+        {% if listing.image %}
+<img src="{{ listing.image }}" class="detail-image" alt="{{ listing.title }}">
+        {% else %}
+<div class="detail-image placeholder">
+<span>No Image</span>
+</div>
+        {% endif %}
+    </div>
+
+    <div class="detail-info">
+<h1 class="detail-title">{{ listing.title }}</h1>
+
+<p class="detail-meta">
+            {% if listing.category %}
+<span class="category-badge">{{ listing.category }}</span>
             {% endif %}
-            {% endfor %}
-        </blockquote>
+            Donated by <strong>{{ owner }}</strong>
+</p>
 
-    </figure>
+<div class="status-row">
+            {% if activity %}
+<span class="status-badge available">
+<span class="status-dot"></span> Available for pickup
+</span>
+            {% else %}
+<span class="status-badge claimed">
+<span class="status-dot"></span> Already picked up
+</span>
+            {% endif %}
+</div>
 
+<div class="tip-card">
+<div class="tip-left">
+<p class="tip-label">Tip offered</p>
+<p class="tip-amount">Rs.{{ listing.current_price }}</p>
+</div>
+<div class="tip-divider"></div>
+<div class="tip-right">
+<p class="tip-note">The donor is offering this tip to the rider who picks up and delivers this donation.</p>
+</div>
+</div>
 
-<div class="card mb-3">
-  <div class="row g-0">
-    <div class="col-md-4">
-       <img src="{{ listing.image }}" class="img-thumbnai" alt="..." style="width:500px;">
-    </div>
-    <div class="col-md-8">
-      <div class="card-body">
-          <h3>{{ listing.title }}</h3>
-          <p class="card-text">{{ listing.description }}</p>
-          <p class="card-text">Category: {{ listing.category }}</p>
-          <p class="card-text">Listed by {{ owner }}</p>
-
-          <form action="{% url 'watchlist' %}" method="post">
-              {% csrf_token %}
-              <input type="hidden" value="change" name="action">
-              <input type="hidden" name="listing_id" value="{{ listing.id }}">
-              <input type="submit" value="add/remove to wishlist">
-          </form>
-
-          <br>
-          <ul class="list-inline">
-            <li class="list-inline-item">{{ no_of_bids }} bids so far.</li>
-            <li class="list-inline-item">{% if bool == True %}
-                                            Your bid is the current bid.
-                                        {% else %}
-                                            Your bid is not the current bid.
-                                        {% endif %}
-            </li>
-          </ul>
-
-          <h1>${{ listing.current_price }}</h1>
-          <form action="{% url 'view_listing' listing.id %}" method="post" class="row g-3">
-            <div class="col-auto">
+        {% if activity %}
+<form action="{% url 'view_listing' listing.id %}" method="post" class="claim-form">
                 {% csrf_token %}
-                {{ form.bid }}
-            </div>
-            <div class="col-auto">
-                <button type="submit" class="btn btn-primary mb-3">BID</button>
-            </div>
-          </form>
+<input type="hidden" name="action" value="claim">
+<input type="hidden" name="listing_id" value="{{ listing.id }}">
+<button type="submit" class="btn btn-primary btn-accept">Accept Pickup</button>
+</form>
+        {% endif %}
 
-          {% if bool2 == True and activity == True %}
-          <br>
-          <form action="{% url 'view_listing' listing.id %}" method="post">
-              {% csrf_token %}
-              <input type="hidden" value="close" name="action">
-              <input type="hidden" name="listing_id" value="{{ listing.id }}">
-              <input type="submit" value="Close Listing">
-          </form>
-          {% endif %}
-
-
-
-
-
-
-      </div>
-    </div>
-  </div>
+<div class="action-row">
+<form action="{% url 'watchlist' %}" method="post">
+                {% csrf_token %}
+<input type="hidden" value="change" name="action">
+<input type="hidden" name="listing_id" value="{{ listing.id }}">
+<button type="submit" class="btn btn-secondary">&#9825; Save to Watchlist</button>
+</form>
 </div>
 
-{%for comment in comments %}
-<div class="card text-bg-dark mb-3" >
-    <div class="card-header">Commented by {{ comment.commenter }} on {{ comment.timestamp }}</div>
-    <div class="card-body">
-        <p class="card-text">{{  comment.comment }} </p>
+        {% if bool2 == True and activity == True %}
+<form action="{% url 'view_listing' listing.id %}" method="post" class="close-form">
+                {% csrf_token %}
+<input type="hidden" value="close" name="action">
+<input type="hidden" name="listing_id" value="{{ listing.id }}">
+<button type="submit" class="btn btn-danger">Mark as Picked Up</button>
+</form>
+        {% endif %}
+
     </div>
 </div>
-{% empty %}
-<h5>NO COMMENTS</h5>
-{% endfor %}
+
+<div class="comments">
+<h3 class="comments-title">Comments</h3>
+
+    {% for comment in comments %}
+<div class="comment">
+<div class="comment-header">
+<span class="comment-author">{{ comment.commenter }}</span>
+<span class="comment-date">{{ comment.timestamp|date:"M d, Y" }}</span>
+</div>
+<p class="comment-text">{{ comment.comment }}</p>
+</div>
+    {% empty %}
+<p class="no-comments">No comments yet. Be the first!</p>
+    {% endfor %}
+
+<div class="comment-form">
+<form action="{% url 'view_listing' listing.id %}" method="POST">
+            {% csrf_token %}
+            {{ commentform }}
+<button type="submit" class="btn btn-primary">Post Comment</button>
+</form>
+</div>
+</div>
 
 
-    <form action="{% url 'view_listing' listing.id %}" method="POST">
-        {% csrf_token %}
-        {{ commentform }}
+<style>
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    margin: 2rem 0;
+}
+@media (max-width: 768px) {
+    .detail-grid { grid-template-columns: 1fr; }
+}
 
-        <input type="submit" value="Comment">
-    </form>
+.detail-image {
+    width: 100%;
+    border-radius: 12px;
+    object-fit: cover;
+    max-height: 420px;
+}
+.detail-image.placeholder {
+    height: 420px;
+    border-radius: 12px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 1rem;
+}
 
+.detail-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+}
 
+.detail-meta {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
 
+.category-badge {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
 
+.status-row {
+    margin-bottom: 1.25rem;
+}
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 999px;
+}
+.status-badge.available {
+    background: #d1fae5;
+    color: #065f46;
+}
+.status-badge.claimed {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    display: inline-block;
+}
 
+/* Tip card */
+.tip-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.tip-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #92400e;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 4px;
+}
+.tip-amount {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #b45309;
+    margin: 0;
+    line-height: 1;
+}
+.tip-divider {
+    width: 1px;
+    height: 48px;
+    background: #fcd34d;
+    flex-shrink: 0;
+}
+.tip-right {
+    flex: 1;
+}
+.tip-note {
+    font-size: 0.82rem;
+    color: #92400e;
+    margin: 0;
+    line-height: 1.5;
+}
 
+.btn-accept {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
 
+.action-row {
+    margin-bottom: 0.75rem;
+}
+.action-row form,
+.close-form {
+    margin: 0;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s;
+}
+.btn:hover { opacity: 0.85; }
+.btn-primary { background: #111827; color: #fff; }
+.btn-secondary {
+    background: #fff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    width: 100%;
+    text-align: center;
+    padding: 0.6rem 1rem;
+}
+.btn-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; margin-top: 0.5rem; }
+
+/* Comments */
+.comments {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 2rem;
+    margin-top: 1rem;
+    max-width: 700px;
+}
+.comments-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+}
+.comment {
+    padding: 1rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+.comment-author {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+.comment-date {
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+.comment-text {
+    font-size: 0.9rem;
+    color: #374151;
+    margin: 0;
+}
+.no-comments {
+    color: #9ca3af;
+    font-size: 0.9rem;
+    margin: 0 0 1.5rem;
+}
+.comment-form {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.comment-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+</style>
 
 {% endblock %}

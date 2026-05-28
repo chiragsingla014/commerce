@@ -1,30 +1,31 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-
-    <h2>Register</h2>
-
-    {% if message %}
-        <div>{{ message }}</div>
-    {% endif %}
-
-    <form action="{% url 'register' %}" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <input class="form-control" autofocus type="text" name="username" placeholder="Username">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="email" name="email" placeholder="Email Address">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="password" name="password" placeholder="Password">
-        </div>
-        <div class="form-group">
-            <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password">
-        </div>
-        <input class="btn btn-primary" type="submit" value="Register">
-    </form>
-
-    Already have an account? <a href="{% url 'login' %}">Log In here.</a>
-
+    <div class="auth-container">
+        <h2 class="auth-title">Create Account</h2>
+        {% if message %}
+            <div class="alert alert-error">{{ message }}</div>
+        {% endif %}
+        <form action="{% url 'register' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input class="form-input" autofocus type="text" name="username" id="username" placeholder="Choose username">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input class="form-input" type="email" name="email" id="email" placeholder="Enter email">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input class="form-input" type="password" name="password" id="password" placeholder="Choose password">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="confirmation">Confirm Password</label>
+                <input class="form-input" type="password" name="confirmation" id="confirmation" placeholder="Confirm password">
+            </div>
+            <button type="submit" class="btn btn-primary form-submit">Register</button>
+        </form>
+        <p class="auth-footer">Already have an account? <a href="{% url 'login' %}">Log In</a></p>
+    </div>
 {% endblock %}
