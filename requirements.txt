@@ -3,3 +3,4 @@ charset-normalizer==3.3.2
 Django==5.1.1
 pytz==2022.1
 sqlparse==0.5.1
+whitenoise==6.12.0
