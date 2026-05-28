@@ -16,8 +16,5 @@
       "dest": "commerce/wsgi.py"  
     }
   ],
-  "hooks": {
-    "postbuild": "python manage.py migrate --noinput"
-  },
   "buildCommand": "pip install -r requirements.txt && python manage.py collectstatic --noinput"
 }
