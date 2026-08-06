@@ -4,6 +4,23 @@
 
 ---
 
+## Demo
+
+* **Deployed Link:** https://sharecycle.chiragsingla014.dev/
+---
+
+## Screenshots
+
+* **Home Page:** ![Home Page](screenshots/home.png)
+
+* **Listing Page:** ![Listing Page](screenshots/listing.png)
+* **Post Page:** ![Post Page](screenshots/post.png)
+* **Pickup Page:** ![Pickup Page](screenshots/pickup.png)
+* **Watchlist Page:** ![Watchlist Page](screenshots/watchlist.png)
+* **Category Page:** ![Category Page](screenshots/category.png)
+
+---
+
 ## Features
 
 * **User Authentication:** Full user registration, login, and session management system.
