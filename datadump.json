@@ -1,0 +1,163 @@
+[
+{
+    "model": "auctions.category",
+    "pk": 1,
+    "fields": {
+        "name": "Clothes"
+    }
+},
+{
+    "model": "auctions.category",
+    "pk": 2,
+    "fields": {
+        "name": "Books"
+    }
+},
+{
+    "model": "auctions.category",
+    "pk": 3,
+    "fields": {
+        "name": "Food"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "3hwras41dlk2ghnyq95iclez1zxen8on",
+    "fields": {
+        "session_data": ".eJxVjMsOwiAQRf-FtSEMj1JcuvcbCMMMUjU0Ke3K-O_apAvd3nPOfYmYtrXGrfMSJxJnocXpd8OUH9x2QPfUbrPMc1uXCeWuyIN2eZ2Jn5fD_TuoqddvXYICCgxUAJXRZRhsDsbC6IENojY2Q2HlPIJPY9CBigvADlUC4z2J9wfWxDdw:1wSf6Z:gFWiFIY3U7k4tGuHGhp4b72-qs7AUT7XvY-j4U7imJE",
+        "expire_date": "2026-06-11T18:05:15.285Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "boml3j1dn890g5ah9lelfr6e9yd95nel",
+    "fields": {
+        "session_data": ".eJxVjMsOwiAQRf-FtSFMeQy6dN9vIAMDUjUlKe3K-O_apAvd3nPOfYlA21rD1vMSJhYXAeL0u0VKjzzvgO8035pMbV6XKcpdkQftcmycn9fD_Tuo1Ou3VgkiIqA-D4USGK8URh6YKEMGdNokYDt4ZV2x3mWDHqPxyaNlh0WL9wfLdTcc:1wSf4E:Z-22tA48zOtwRMAIwfQGbr9Ck81069Wykvg0DZblnBI",
+        "expire_date": "2026-06-11T18:02:50.406Z"
+    }
+},
+{
+    "model": "auctions.user",
+    "fields": {
+        "password": "pbkdf2_sha256$870000$94W8feBfd24Q3oNgwsilQd$SLtevXb80WKBfvfvGqV31ENQWR8K9AAZMn4aSIT9Q5M=",
+        "last_login": "2026-05-28T18:02:50.397Z",
+        "is_superuser": false,
+        "username": "chirag",
+        "first_name": "",
+        "last_name": "",
+        "email": "chirag@abc.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-05-28T18:02:50.137Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auctions.user",
+    "fields": {
+        "password": "pbkdf2_sha256$870000$C1gqyvR4NeBY9CB1EBKLyy$nIPDKCaPisK4YPtJYeZO00a9BJcOkoZrik3L0B+AVnE=",
+        "last_login": "2026-05-28T18:05:15.276Z",
+        "is_superuser": false,
+        "username": "chirag2",
+        "first_name": "",
+        "last_name": "",
+        "email": "chirag2@abc.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-05-28T18:05:15.016Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auctions.listing",
+    "pk": 1,
+    "fields": {
+        "title": "T shirt",
+        "description": "Black Tshirt size XL",
+        "starting_bid": "100.00",
+        "current_price": "100.00",
+        "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTzJ4r_oz5DGU5QZFRAAAZu9LKCtN-Gp8lZVvvqhFQyiusl-1c1eJVKfnJu7bIdrqnps99d0AxFpEEyKYV0vUBX4i7rhx2MsZHiPxe3Yy6YN5W3Kvokyf71-A",
+        "pickup_address": "3rd gate kuk",
+        "category": 1,
+        "owner": [
+            "chirag"
+        ],
+        "active": true,
+        "timestamp": "2026-05-28T18:03:40.500Z"
+    }
+},
+{
+    "model": "auctions.listing",
+    "pk": 2,
+    "fields": {
+        "title": "Clean Code",
+        "description": "Clean Code paperback",
+        "starting_bid": "200.00",
+        "current_price": "200.00",
+        "image": "https://stancalau.ro/images/articles/clean-code-book-review/CleanCode.jpg",
+        "pickup_address": "hostel, KUK",
+        "category": 2,
+        "owner": [
+            "chirag"
+        ],
+        "active": true,
+        "timestamp": "2026-05-28T18:04:14.432Z"
+    }
+},
+{
+    "model": "auctions.listing",
+    "pk": 3,
+    "fields": {
+        "title": "Potatoes",
+        "description": "Potatoes 5kg",
+        "starting_bid": "50.00",
+        "current_price": "50.00",
+        "image": "https://cdn.mos.cms.futurecdn.net/iC7HBvohbJqExqvbKcV3pP.jpg",
+        "pickup_address": "brahm sarovar",
+        "category": 3,
+        "owner": [
+            "chirag"
+        ],
+        "active": true,
+        "timestamp": "2026-05-28T18:04:42.236Z"
+    }
+},
+{
+    "model": "auctions.bid",
+    "pk": 1,
+    "fields": {
+        "listing": 1,
+        "bid": "100.00",
+        "bidder": [
+            "chirag"
+        ],
+        "timestamp": "2026-05-28T18:03:40.508Z"
+    }
+},
+{
+    "model": "auctions.bid",
+    "pk": 2,
+    "fields": {
+        "listing": 2,
+        "bid": "200.00",
+        "bidder": [
+            "chirag"
+        ],
+        "timestamp": "2026-05-28T18:04:14.447Z"
+    }
+},
+{
+    "model": "auctions.bid",
+    "pk": 3,
+    "fields": {
+        "listing": 3,
+        "bid": "50.00",
+        "bidder": [
+            "chirag"
+        ],
+        "timestamp": "2026-05-28T18:04:42.251Z"
+    }
+}
+]
